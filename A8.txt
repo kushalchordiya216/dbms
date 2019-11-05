@@ -1,0 +1,31 @@
+CREATE TABLE Student8 (rollno NUMBER ,Name VARCHAR2(20),DateofAdmission DATE ,branch VARCHAR2(8),percent FLOAT,Status VARCHAR2(1));
+
+CREATE TABLE Alumni (rollno NUMBER ,Name VARCHAR2(20),Status VARCHAR2(1));
+
+Insert into Student8 values(&rno, '&name', '&DateofAdmin','&branch',&percent,'&status');
+
+CREATE or REPLACE TRIGGER after_update AFTER UPDATE OF status on student8 FOR EACH ROW 
+BEGIN
+	DBMS_OUTPUT.PUT_LINE ('Entry Updated!');
+	Insert into Alumni values(:Old.rollno, :Old.name, :New.status);
+END;
+/
+
+
+CREATE or REPLACE TRIGGER before_delete BEFORE DELETE on student8 FOR EACH ROW 
+BEGIN
+	DBMS_OUTPUT.PUT_LINE ('Entry Deleted!');
+	Insert into Alumni values(:Old.rollno, :Old.name, 'P'); 
+END;
+/
+
+CREATE or REPLACE TRIGGER update_delete BEFORE UPDATE or DELETE on student8 FOR EACH ROW 
+BEGIN
+	IF UPDATING THEN
+		DBMS_OUTPUT.PUT_LINE ('Entry Updated!');
+	ELSIF DELETING THEN
+		DBMS_OUTPUT.PUT_LINE ('Entry Deleted!');
+	END IF;
+END;
+/
+

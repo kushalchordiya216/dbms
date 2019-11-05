@@ -1,0 +1,185 @@
+1.
+mysql> select * from Customer Natural Join BOrder;
++---------+------------+------------+--------------+-----------+--------+------------+----------+----------+------+------------+
+| cust_no | cust_fname | cust_lname | cust_company | cust_addr | city   | cust_phone | order_no | ISBN     | qty  | odate      |
++---------+------------+------------+--------------+-----------+--------+------------+----------+----------+------+------------+
+|     101 | Yatindra   | Jain       | Apple        | Amrai     | Karjat | 9874563210 |        1 | 78787878 |    3 | 2015-06-07 |
+|     101 | Yatindra   | Jain       | Apple        | Amrai     | Karjat | 9874563210 |        2 | 78787879 |    2 | 2018-06-14 |
+|     103 | Chinmay    | Joshi      | Google       | Panvel    | Mumbai | 9874563212 |        3 | 78787812 |    5 | 2017-06-16 |
+|     104 | Ashay      | Koradia    | KnS          | Telhara   | Akola  | 9874563213 |        4 | 78787827 |    1 | 2016-06-18 |
+|     105 | Atharva    | Hirwekar   | Samsung      | Kalyan    | Thane  | 9874563214 |        5 | 78787845 |    2 | 2015-06-22 |
+|     105 | Atharva    | Hirwekar   | Samsung      | Kalyan    | Thane  | 9874563214 |        6 | 78787846 |    4 | 2018-06-23 |
++---------+------------+------------+--------------+-----------+--------+------------+----------+----------+------+------------+
+6 rows in set (0.01 sec)
+
+2.
+mysql> select book.title,author.author_name,author.country from book INNER JOIN author on book.author_no = author.author_no;
++---------+---------------+---------+
+| title   | author_name   | country |
++---------+---------------+---------+
+| Eminem  | Eminem        | USA     |
+| IronMan | Stan Lee      | USA     |
+| BatMan  | Malcolm       | USA     |
+| Hamlet  | Shakespeare   | UK      |
+| Tempest | Shakespeare   | UK      |
+| HP1     | J. K. Rowling | UK      |
+| HP2     | J. K. Rowling | UK      |
++---------+---------------+---------+
+7 rows in set (0.00 sec)
+
+3.
+mysql> select Customer.cust_no,Customer.cust_fname,BOrder.order_no from Customer Left Join BOrder on Customer.cust_no = BOrder.cust_no where BOrder.order_no is null;
++---------+------------+----------+
+| cust_no | cust_fname | order_no |
++---------+------------+----------+
+|     102 | Omkar      |     NULL |
+|     107 | Aditya     |     NULL |
+|     108 | Pranay     |     NULL |
++---------+------------+----------+
+3 rows in set (0.00 sec)
+
+4.
+mysql> select book.title,book.ISBN,BOrder.order_no from BOrder Right Join book on book.ISBN = BOrder.ISBN where BOrder.order_no is null;
++--------+----------+----------+
+| title  | ISBN     | order_no |
++--------+----------+----------+
+| BatMan | 78787830 |     NULL |
++--------+----------+----------+
+1 row in set (0.00 sec)
+
+5.
+mysql> select Customer.cust_fname,book.title,book.author_no,book.pub_year from Customer natural join BOrder natural join book where book.ISBN = 78787827;
++------------+---------+-----------+----------+
+| cust_fname | title   | author_no | pub_year |
++------------+---------+-----------+----------+
+| Ashay      | IronMan |         1 |     1999 |
++------------+---------+-----------+----------+
+1 row in set (0.01 sec)
+
+6.
+mysql> select c.cust_fname,sum(o.qty) from Customer c,BOrder o where o.cust_no=c.cust_no group by o.cust_no;
++------------+------------+
+| cust_fname | sum(o.qty) |
++------------+------------+
+| Yatindra   |          5 |
+| Chinmay    |          5 |
+| Ashay      |          1 |
+| Atharva    |          6 |
++------------+------------+
+4 rows in set (0.00 sec)
+
+7.
+mysql> select BOrder.cust_no,BOrder.order_no, BOrder.ISBN from book natural join BOrder where book.title = 'HP1';
++---------+----------+----------+
+| cust_no | order_no | ISBN     |
++---------+----------+----------+
+|     101 |        1 | 78787878 |
++---------+----------+----------+
+1 row in set (0.00 sec)
+
+8.
+mysql> select Customer.cust_company from Customer right join BOrder on Customer.cust_no = BOrder.cust_no where year(BOrder.odate)=2015;
++--------------+
+| cust_company |
++--------------+
+| Apple        |
+| Samsung      |
++--------------+
+2 rows in set (0.00 sec)
+
+9.
+mysql> create view author_book as Select * from author natural join book;
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> select * from author_book;
++-----------+---------------+---------+----------+---------+------------+--------------+----------+
+| author_no | author_name   | country | ISBN     | title   | unit_price | publisher_no | pub_year |
++-----------+---------------+---------+----------+---------+------------+--------------+----------+
+|         4 | Eminem        | USA     | 78787812 | Eminem  |        430 |           15 |     2003 |
+|         1 | Stan Lee      | USA     | 78787827 | IronMan |        280 |            1 |     1999 |
+|         2 | Malcolm       | USA     | 78787830 | BatMan  |        250 |            4 |     2001 |
+|         5 | Shakespeare   | UK      | 78787845 | Hamlet  |        130 |            8 |     1995 |
+|         5 | Shakespeare   | UK      | 78787846 | Tempest |        100 |            8 |     1992 |
+|         7 | J. K. Rowling | UK      | 78787878 | HP1     |        126 |           12 |     2015 |
+|         7 | J. K. Rowling | UK      | 78787879 | HP2     |        158 |           12 |     2015 |
++-----------+---------------+---------+----------+---------+------------+--------------+----------+
+7 rows in set (0.00 sec)
+
+10.
+mysql> create view bookview as select ISBN,title,publisher_no from book;
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> select * from bookview;
++----------+---------+--------------+
+| ISBN     | title   | publisher_no |
++----------+---------+--------------+
+| 78787812 | Eminem  |           15 |
+| 78787827 | IronMan |            1 |
+| 78787830 | BatMan  |            4 |
+| 78787845 | Hamlet  |            8 |
+| 78787846 | Tempest |            8 |
+| 78787878 | HP1     |           12 |
+| 78787879 | HP2     |           12 |
++----------+---------+--------------+
+7 rows in set (0.01 sec)
+
+mysql>  insert into bookview values(78787880,"HP3", "12");
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from bookview;
++----------+---------+--------------+
+| ISBN     | title   | publisher_no |
++----------+---------+--------------+
+| 78787812 | Eminem  |           15 |
+| 78787827 | IronMan |            1 |
+| 78787830 | BatMan  |            4 |
+| 78787845 | Hamlet  |            8 |
+| 78787846 | Tempest |            8 |
+| 78787878 | HP1     |           12 |
+| 78787879 | HP2     |           12 |
+| 78787880 | HP3     |           12 |
++----------+---------+--------------+
+8 rows in set (0.01 sec)
+
+mysql> update bookview set ISBN = 78780070 where title = "HP3";
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from bookview;
++----------+---------+--------------+
+| ISBN     | title   | publisher_no |
++----------+---------+--------------+
+| 78780070 | HP3     |           12 |
+| 78787812 | Eminem  |           15 |
+| 78787827 | IronMan |            1 |
+| 78787830 | BatMan  |            4 |
+| 78787845 | Hamlet  |            8 |
+| 78787846 | Tempest |            8 |
+| 78787878 | HP1     |           12 |
+| 78787879 | HP2     |           12 |
++----------+---------+--------------+
+8 rows in set (0.00 sec)
+
+mysql> delete from bookview where title = "HP3";
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from bookview;
++----------+---------+--------------+
+| ISBN     | title   | publisher_no |
++----------+---------+--------------+
+| 78787812 | Eminem  |           15 |
+| 78787827 | IronMan |            1 |
+| 78787830 | BatMan  |            4 |
+| 78787845 | Hamlet  |            8 |
+| 78787846 | Tempest |            8 |
+| 78787878 | HP1     |           12 |
+| 78787879 | HP2     |           12 |
++----------+---------+--------------+
+7 rows in set (0.00 sec)
+
+mysql> drop view bookview;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from bookview;
+ERROR 1146 (42S02): Table 'te1127db.bookview' doesn't exist
+

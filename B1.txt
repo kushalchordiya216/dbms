@@ -1,0 +1,72 @@
+---- Create collections -----
+
+> show collections
+
+> db.createCollection(
+... "student")
+{ "ok" : 1 }
+
+> show collections
+student
+system.indexes
+
+
+---- Insert into collection ----
+
+> db.student.insert({name:"Chinmay", roll_no:28})
+WriteResult({ "nInserted" : 1 })
+
+> db.student.insert({name:"Chinmay", roll_no:28, div:"TE1"})
+WriteResult({ "nInserted" : 1 })
+
+> db.student.find()
+{ "_id" : ObjectId("5d772ea31120392acf6106fc"), "name" : "Chinmay", "roll_no" : 28 }
+{ "_id" : ObjectId("5d772eb61120392acf6106fd"), "name" : "Chinmay", "roll_no" : 28, "div" : "TE1" }
+
+
+---- Update entries ----
+
+> db.student.update({div:"TE1"}, {$set:{name:"Yatindra"}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+> db.student.find()
+{ "_id" : ObjectId("5d772ea31120392acf6106fc"), "name" : "Chinmay", "roll_no" : 28 }
+{ "_id" : ObjectId("5d772eb61120392acf6106fd"), "name" : "Yatindra", "roll_no" : 28, "div" : "TE1" }
+
+> db.student.update({name:"Yatindra"}, {$set:{roll_no:27}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+> db.student.find()
+{ "_id" : ObjectId("5d772ea31120392acf6106fc"), "name" : "Chinmay", "roll_no" : 28 }
+{ "_id" : ObjectId("5d772eb61120392acf6106fd"), "name" : "Yatindra", "roll_no" : 27, "div" : "TE1" }
+
+
+---- Read from Collection ----
+
+> db.student.find()
+{ "_id" : ObjectId("5d772ea31120392acf6106fc"), "name" : "Chinmay", "roll_no" : 28 }
+{ "_id" : ObjectId("5d772eb61120392acf6106fd"), "name" : "Yatindra", "roll_no" : 27, "div" : "TE1" }
+
+> db.student.find({name:"Chinmay"})
+{ "_id" : ObjectId("5d772ea31120392acf6106fc"), "name" : "Chinmay", "roll_no" : 28 }
+
+> db.student.find({roll_no:{$gt:27}})
+{ "_id" : ObjectId("5d772ea31120392acf6106fc"), "name" : "Chinmay", "roll_no" : 28 }
+
+
+---- Remove Entry ----
+
+> db.student.find()
+{ "_id" : ObjectId("5d772ea31120392acf6106fc"), "name" : "Chinmay", "roll_no" : 28 }
+{ "_id" : ObjectId("5d772eb61120392acf6106fd"), "name" : "Yatindra", "roll_no" : 27, "div" : "TE1" }
+{ "_id" : ObjectId("5d7732021120392acf6106fe"), "name" : "Omkar", "roll_no" : 26, "div" : "TE1" }
+{ "_id" : ObjectId("5d7732111120392acf6106ff"), "name" : "Ram", "roll_no" : 29, "div" : "TE1" }
+
+> db.student.remove({roll_no:26})
+WriteResult({ "nRemoved" : 1 })
+
+> db.student.find()
+{ "_id" : ObjectId("5d772ea31120392acf6106fc"), "name" : "Chinmay", "roll_no" : 28 }
+{ "_id" : ObjectId("5d772eb61120392acf6106fd"), "name" : "Yatindra", "roll_no" : 27, "div" : "TE1" }
+{ "_id" : ObjectId("5d7732111120392acf6106ff"), "name" : "Ram", "roll_no" : 29, "div" : "TE1" }
+

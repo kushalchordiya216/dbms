@@ -1,0 +1,84 @@
+db.createCollection("FoodOrder")
+
+db.FoodOrder.insert({cust_id : 101,order_date: new Date("2019-06-15"),status:"A",price:50,items:[{prod_id:"ABC",qty:3,price:10},{prod_id:"XYZ",qty:2,price:5}]}) 
+
+db.FoodOrder.insert({cust_id : 102,order_date: new Date("2019-07-16"),status:"A",price:40,items:[{prod_id:"XYZ",qty:2,price:10},{prod_id:"LMN",qty:1,price:5}]})
+
+db.FoodOrder.insert({cust_id : 101,order_date: new Date("2019-07-30"),status:"B",price:80,items:[{prod_id:"LMN",qty:3,price:10},}]})  
+
+db.FoodOrder.insert({cust_id : 102,order_date: new Date("2019-08-10"),status:"B",price:50,items:[{prod_id:"LMN",qty:3,price:15}]})
+
+
+##########################################################################
+
+							MAP REDUCE
+							
+##########################################################################
+
+> var mapfunction1 = function(){ emit(this.cust_id,this.price);};
+
+> var reduceFunction1 = function(keyCustId,valuesPrices){ return Array.sum(valuesPrices);};
+
+> db.FoodOrder.mapReduce(mapfunction1,reduceFunction1,{out: "ID_and_Prices"})
+{
+	"result" : "ID_and_Prices",
+	"timeMillis" : 3,
+	"counts" : {
+		"input" : 4,
+		"emit" : 4,
+		"reduce" : 2,
+		"output" : 2
+	},
+	"ok" : 1,
+}
+
+> db.ID_and_Prices.find()
+{ "_id" : 101, "value" : 130 }
+{ "_id" : 102, "value" : 90 }
+
+
+
+############# Function 2 ##############################
+
+
+
+> mapFunction2 = function() {
+  	for (var idx = 0; idx < this.items.length; idx++) {
+  		var key = this.items[idx].prod_id;
+        var value = {count: 1,qty: this.items[idx].qty}; emit(key, value);
+ };
+                    
+> var reduceFunction2 = function(keyProdId, countObjVals) {
+    reducedVal = { count: 0, qty: 0 };
+	for (var idx = 0; idx < countObjVals.length; idx++) {
+   		reducedVal.count += countObjVals[idx].count;
+        reducedVal.qty += countObjVals[idx].qty;
+    }
+    return reducedVal; };
+                  
+
+
+> var finalizeFunction2 = function (key, reducedVal) {
+	reducedVal.avg = reducedVal.qty/reducedVal.count;
+	return reducedVal;
+  };
+
+> db.FoodOrder.mapReduce( mapFunction2,reduceFunction2, {
+     out: { merge: "map_reduce_average" },query: { order_date: { $gt: new Date('2019-05-05')}},finalize: finalizeFunction2 })
+                   
+{
+	"result" : "map_reduce_average",
+	"timeMillis" : 1,
+	"counts" : {
+		"input" : 4,
+		"emit" : 6,
+		"reduce" : 2,
+		"output" : 3
+	},
+	"ok" : 1,
+}
+> db.map_reduce_average.find()
+{ "_id" : "ABC", "value" : { "count" : 1, "qty" : 3, "avg" : 3 } }
+{ "_id" : "LMN", "value" : { "count" : 3, "qty" : 7, "avg" : 2.3333333333333335 } }
+{ "_id" : "XYZ", "value" : { "count" : 2, "qty" : 4, "avg" : 2 } }
+
